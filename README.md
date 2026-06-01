@@ -160,10 +160,3 @@ EventSnap/
 4. Open the **Photos With Me** tab.
 5. Instantly view all event photos containing your face.
 
-## Resume Highlights
-
-- Developed a full-stack event photo management platform using FastAPI, JavaScript, and facial recognition.
-- Implemented automated face embedding generation and matching to identify user-specific photos.
-- Designed RESTful APIs for image uploads, profile management, photo retrieval, and personalized photo discovery.
-
-Built with FastAPI, JavaScript, and Computer Vision to simplify event photo discovery.
