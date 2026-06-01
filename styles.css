@@ -1,0 +1,404 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background: #fafafa;
+  color: #111;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  background: white;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #111827;
+  font-weight: 600;
+}
+
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* MAIN */
+.container {
+  padding: 48px 64px;
+}
+
+h1 {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 32px;
+}
+
+/* GRID */
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+/* CARD */
+.album-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.album-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+}
+
+.album-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.album-info {
+  padding: 16px 20px;
+}
+
+.album-info h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 145px;
+}
+
+.meta-label{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.meta img {
+  width: 20px;   
+  height: 20px;  
+  object-fit: contain;
+}
+/* Make album cards clickable links without blue underline */
+.album-grid a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+/* Event page: back link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #6b7280;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.back-link:hover {
+  color: #374151;
+}
+
+/* Event page: header row with title + upload button */
+.header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+/* Your event page uses .title for the big heading */
+.title {
+  margin: 0;
+  font-size: 52px;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+
+/* Photo count under title */
+.count {
+  margin-top: 12px;
+  font-size: 20px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* Upload button (blue pill button) */
+.btn-primary {
+  margin-top: 10px;
+  border: 0;
+  background: #2563eb;
+  color: #fff;
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+}
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+.btn-icon {
+  display: inline-flex;
+}
+/* Pills container - BLUE background */
+.pills {
+  display: inline-flex;
+  gap: 10px;
+  background: #2563eb;
+  padding: 8px;
+  border-radius: 999px;
+
+  position: relative;
+  z-index: 0;
+
+  /* spacing so it doesn't overlap the grid */
+  margin: 18px 0 28px 0;
+}
+
+/* Pill buttons */
+.pill {
+  border: none;
+  background-color: transparent;   /* important: use background-color */
+  color: #e0e7ff;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  /* transitions */
+  transition: background-color 200ms ease, color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+/* Active pill */
+.pill.pill-active {
+  background-color: #ffffff;
+  color: #1e3a8a;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+/* Icon inside pill */
+.pill img {
+  transition: filter 200ms ease;
+  filter: brightness(0) invert(1);
+}
+
+.pill.pill-active img {
+  filter: none;
+}
+
+
+/* Photo grid on event page */
+.grid{
+  margin-top: 0;            /* avoid stacking upward */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+
+.tile {
+  border-radius: 18px;
+  overflow: hidden;
+  background: #e5e7eb;
+  box-shadow: 0 10px 22px rgba(17, 24, 39, 0.08);
+}
+
+.tile img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  display: block;
+}
+
+.tile {
+  position: relative;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: none;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  font-size: 14px;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: red;
+}
+
+
+
+/* profile page stuff */
+.page-title {
+  font-size: 42px;
+  font-weight: 800;
+  margin: 30px 0 22px;
+  text-align: center;
+}
+
+.profile-card {
+  max-width: 920px;
+  margin: 0 auto 60px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 34px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.10);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.profile-row {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  padding-bottom: 22px;
+}
+
+.profile-left {
+  width: 220px;
+  display: flex;
+  justify-content: center;
+}
+
+.profile-photo-wrap {
+  position: relative;
+  width: 170px;
+  height: 170px;
+}
+
+.profile-photo {
+  width: 170px;
+  height: 170px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #eef1f6;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.photo-edit-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: #1d5bff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 22px rgba(29,91,255,0.35);
+}
+
+.camera-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.profile-right {
+  flex: 1;
+}
+
+.section-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.muted {
+  margin: 0;
+  color: #667085;
+  line-height: 1.5;
+}
+
+.muted.small {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.form-group {
+  margin-top: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #1f2937;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #f3f4f6;
+  outline: none;
+  font-size: 16px;
+}
+
+.form-group input:focus {
+  border-color: rgba(29,91,255,0.55);
+  background: #fff;
+}
+
+.btn-wide {
+  width: 100%;
+  margin-top: 26px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  font-size: 18px;
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+  .page-title { font-size: 32px; }
+  .profile-row { flex-direction: column; align-items: flex-start; }
+  .profile-left { width: 100%; justify-content: flex-start; }
+}
