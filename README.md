@@ -52,47 +52,6 @@ EventSnap is a full-stack event photo management application that allows users t
 - Local file system storage
 - JSON-based face embedding storage
 
-## Architecture
-
-```text
-Frontend (HTML/CSS/JS)
-          |
-          v
-      FastAPI API
-          |
-   +------+------+ 
-   |      |      |
-   v      v      v
-Uploads Profile Face Recognition
-   |      |      |
-   v      v      v
-Storage Embeddings Matching
-```
-
-## API Endpoints
-
-### Event Photos
-
-| Method | Endpoint | Description |
-|----------|----------|-------------|
-| GET | `/event1/photos` | Retrieve all event photos |
-| POST | `/event1/upload` | Upload event photos |
-| DELETE | `/event1/photos/{filename}` | Delete a photo |
-| GET | `/event1/photos_with_me` | Retrieve photos containing the user |
-
-### Profile
-
-| Method | Endpoint | Description |
-|----------|----------|-------------|
-| POST | `/profile/upload` | Upload profile picture |
-| GET | `/profile` | Retrieve current profile picture |
-
-### Health Check
-
-| Method | Endpoint | Description |
-|----------|----------|-------------|
-| GET | `/health` | Verify server status |
-
 ## How It Works
 
 ### Upload Event Photos
@@ -111,27 +70,6 @@ Storage Embeddings Matching
 2. The backend compares the user's profile embedding against all event photo embeddings.
 3. Matching photos are returned and displayed instantly.
 
-## Project Structure
-
-```text
-EventSnap/
-│
-├── frontend/
-│   ├── index.html
-│   ├── event1.html
-│   ├── profile.html
-│   ├── styles.css
-│   └── images/
-│
-├── backend/
-│   ├── main.py
-│   ├── storage/
-│   │   ├── event1/
-│   │   └── profile/
-│   └── static/
-│
-└── requirements.txt
-```
 
 ## Future Improvements
 
@@ -143,20 +81,4 @@ EventSnap/
 - Mobile application support
 - Real-time photo synchronization
 - Automatic face clustering and tagging
-
-## Key Engineering Challenges
-
-- Designing a scalable image upload pipeline
-- Managing image storage and retrieval efficiently
-- Generating and storing facial embeddings
-- Implementing face matching across large photo collections
-- Building a responsive and intuitive user experience
-
-## Demo Workflow
-
-1. Upload a profile photo.
-2. Upload event photos.
-3. Facial embeddings are generated automatically.
-4. Open the **Photos With Me** tab.
-5. Instantly view all event photos containing your face.
 
