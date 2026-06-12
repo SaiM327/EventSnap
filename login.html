@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EventSnap - Sign In</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">
+        <img src="images/mainlogo.png" alt="Logo" width="40"/>
+        <span>EventSnap</span>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1 class="page-title" id="form-title">Welcome back</h1>
+
+    <div class="profile-card auth-card">
+      <div class="form-group" id="name-group" style="display:none">
+        <label for="name">Full Name</label>
+        <input id="name" type="text" placeholder="Alex Johnson" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input id="email" type="email" placeholder="alex.johnson@email.com" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="••••••••" />
+      </div>
+
+      <p class="form-error" id="error-msg"></p>
+
+      <button class="btn-primary btn-wide" id="submit-btn" type="button">Sign In</button>
+
+      <p class="muted auth-toggle">
+        <span id="toggle-text">Don't have an account?</span>
+        <a href="#" id="toggle-link">Create one</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    // Already logged in? Go straight to albums.
+    if (getToken()) window.location.href = "index.html";
+
+    let mode = "login";
+
+    const formTitle = document.getElementById("form-title");
+    const nameGroup = document.getElementById("name-group");
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const submitBtn = document.getElementById("submit-btn");
+    const toggleText = document.getElementById("toggle-text");
+    const toggleLink = document.getElementById("toggle-link");
+    const errorMsg = document.getElementById("error-msg");
+
+    function setMode(newMode) {
+      mode = newMode;
+      errorMsg.textContent = "";
+      if (mode === "login") {
+        formTitle.textContent = "Welcome back";
+        nameGroup.style.display = "none";
+        submitBtn.textContent = "Sign In";
+        toggleText.textContent = "Don't have an account?";
+        toggleLink.textContent = "Create one";
+      } else {
+        formTitle.textContent = "Create your account";
+        nameGroup.style.display = "";
+        submitBtn.textContent = "Create Account";
+        toggleText.textContent = "Already have an account?";
+        toggleLink.textContent = "Sign in";
+      }
+    }
+
+    toggleLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      setMode(mode === "login" ? "register" : "login");
+    });
+
+    async function submit() {
+      errorMsg.textContent = "";
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      const body = mode === "login"
+        ? { email, password }
+        : { name: nameInput.value.trim(), email, password };
+
+      if (mode === "register" && !body.name) {
+        errorMsg.textContent = "Please enter your name.";
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/auth/${mode === "login" ? "login" : "register"}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        errorMsg.textContent = data.detail || "Something went wrong. Try again.";
+        return;
+      }
+
+      setSession(data.token, data.user);
+      window.location.href = "index.html";
+    }
+
+    submitBtn.addEventListener("click", submit);
+    passwordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") submit();
+    });
+  </script>
+
+</body>
+</html>

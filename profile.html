@@ -16,16 +16,16 @@
         <span>EventSnap</span>
     </div>
     <div class="nav-links">
-    <a href="index.html">Albums</a>
-     <a href="profile.html" class="nav-profile">
-    <div class="logo">
-    <img src="images/user.png" alt="Profile" class="nav-icon" width="20">
-    Profile
+      <a href="index.html">Albums</a>
+      <a href="profile.html" class="nav-profile">
+        <div class="logo">
+          <img src="images/user.png" alt="Profile" class="nav-icon" width="20">
+          Profile
+        </div>
+      </a>
+      <a href="#" id="logout-link">Logout</a>
     </div>
-  </a>
-</div>
-
-</nav> 
+  </nav>
 
   <main class="container">
     <h1 class="page-title">Profile Settings</h1>
@@ -62,6 +62,8 @@
         <input id="email" type="email" placeholder="alex.johnson@email.com" />
       </div>
 
+      <p class="form-error" id="error-msg"></p>
+
       <button class="btn-primary btn-wide" id="save-btn" type="button">
         Save Changes
       </button>
@@ -71,84 +73,92 @@
     </div>
   </main>
 
+  <script src="app.js"></script>
   <script>
-
-    const API_BASE = "http://127.0.0.1:8001";
-
-    async function loadProfilePhoto() {
-  const res = await fetch(`${API_BASE}/profile`);
-  const data = await res.json();
-  if (data.photo_url) {
-    preview.src = API_BASE + data.photo_url;
-  }
-}
-
-    // Simple front-end only behavior (no backend yet):
-    // 1) pick photo -> preview updates
-    // 2) save name/email -> stored in localStorage so it persists on refresh
+    requireAuth();
 
     const photoEditBtn = document.getElementById("photo-edit-btn");
     const fileInput = document.getElementById("profile-file");
     const preview = document.getElementById("profile-preview");
-
     const nameInput = document.getElementById("full-name");
     const emailInput = document.getElementById("email");
     const saveBtn = document.getElementById("save-btn");
+    const errorMsg = document.getElementById("error-msg");
 
-    // Load saved profile info (frontend-only)
-    function loadProfile() {
-      const savedName = localStorage.getItem("profile_name");
-      const savedEmail = localStorage.getItem("profile_email");
-      const savedPhoto = localStorage.getItem("profile_photo_dataurl");
-
-      if (savedName) nameInput.value = savedName;
-      if (savedEmail) emailInput.value = savedEmail;
-      if (savedPhoto) preview.src = savedPhoto;
-    }
-
-    // Open file picker when camera button clicked
-    photoEditBtn.addEventListener("click", () => fileInput.click());
-
-    // Preview selected image (frontend-only)
-    fileInput.addEventListener("change", async () => {
-  const file = fileInput.files[0];
-  if (!file) return;
-
-  if (file.size > 5 * 1024 * 1024) {
-    alert("File too large. Max 5MB.");
-    fileInput.value = "";
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("photo", file); // must match backend param name: photo
-
-  const res = await fetch(`${API_BASE}/profile/upload`, {
-    method: "POST",
-    body: formData
-  });
-
-  if (!res.ok) {
-    alert("Profile upload failed");
-    return;
-  }
-
-  const data = await res.json();
-  preview.src = API_BASE + data.photo_url;  // show saved image
-  fileInput.value = "";
-});
-
-
-    // Save name/email (frontend-only)
-    saveBtn.addEventListener("click", () => {
-      localStorage.setItem("profile_name", nameInput.value.trim());
-      localStorage.setItem("profile_email", emailInput.value.trim());
-      alert("Saved (locally for now).");
+    document.getElementById("logout-link").addEventListener("click", (e) => {
+      e.preventDefault();
+      logout();
     });
 
-    loadProfilePhoto();
-    loadProfile(); // if you still keep name/email in localStorage for now
+    async function loadProfile() {
+      const res = await authFetch("/me");
+      const user = await res.json();
 
+      nameInput.value = user.name || "";
+      emailInput.value = user.email || "";
+      if (user.photo_url) {
+        preview.src = API_BASE + user.photo_url;
+      }
+    }
+
+    photoEditBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File too large. Max 5MB.");
+        fileInput.value = "";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("photo", file); // must match backend param name: photo
+
+      const res = await authFetch("/me/photo", {
+        method: "POST",
+        body: formData
+      });
+
+      if (!res.ok) {
+        alert("Profile upload failed");
+        return;
+      }
+
+      const data = await res.json();
+      preview.src = API_BASE + data.photo_url;
+      fileInput.value = "";
+
+      if (!data.face_found) {
+        alert("We couldn't detect a face in that photo. \"Photos with Me\" won't work until you upload a clear photo of your face.");
+      }
+    });
+
+    saveBtn.addEventListener("click", async () => {
+      errorMsg.textContent = "";
+
+      const res = await authFetch("/me", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: nameInput.value.trim(),
+          email: emailInput.value.trim()
+        })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        errorMsg.textContent = data.detail || "Failed to save changes.";
+        return;
+      }
+
+      localStorage.setItem("eventsnap_user", JSON.stringify(data));
+      alert("Profile saved.");
+    });
+
+    loadProfile();
   </script>
 
 </body>

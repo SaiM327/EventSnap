@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EventSnap</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -14,103 +15,150 @@
         <span>EventSnap</span>
     </div>
     <div class="nav-links">
-    <a href="index.html">Albums</a>
-     <a href="profile.html" class="nav-profile">
-    <div class="logo">
-    <img src="images/user.png" alt="Profile" class="nav-icon" width="20">
-    Profile
+      <a href="index.html">Albums</a>
+      <a href="profile.html" class="nav-profile">
+        <div class="logo">
+          <img src="images/user.png" alt="Profile" class="nav-icon" width="20">
+          Profile
+        </div>
+      </a>
+      <a href="#" id="logout-link">Logout</a>
     </div>
-  </a>
-</div>
-
   </nav>
 
   <!-- MAIN CONTENT -->
   <main class="container">
-    <h1>My Albums</h1>
-    <p class="subtitle">Browse your event photo collections</p>
-
-    <div class="album-grid">
-      <!-- Album Card -->
-       <a href="event1.html">
-      <div class="album-card">
-        <img src="images/nyc.jpg" />
-
-        <div class="album-info">
-          <h3>Event 1</h3>
-          <div class="meta">
-            <div class ="meta-label">
-            <img src="images/calendar.png" alt="Calendar"/>
-            <span>Dec 15, 2025</span>
-            </div>
-            <div class ="meta-label">
-            <img src="images/gallery.png" alt="Photos"/>
-            <span>234 photos</span>
-            </div>
-          </div>
-        </div>
+    <div class="header-row">
+      <div class="header-left">
+        <h1>My Albums</h1>
+        <p class="subtitle">Browse your event photo collections</p>
       </div>
-      </a>
-
-      <div class="album-card">
-        <img src="images/nyc.jpg" />
-
-        <div class="album-info">
-          <h3>Event 2</h3>
-          <div class="meta">
-            <div class ="meta-label">
-            <img src="images/calendar.png" alt="Calendar"/>
-            <span>Dec 15, 2025</span>
-            </div>
-            <div class ="meta-label">
-            <img src="images/gallery.png" alt="Photos"/>
-            <span>234 photos</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="album-card">
-        <img src="images/nyc.jpg" />
-
-        <div class="album-info">
-          <h3>Event 3</h3>
-          <div class="meta">
-            <div class ="meta-label">
-            <img src="images/calendar.png" alt="Calendar"/>
-            <span>Dec 15, 2025</span>
-            </div>
-            <div class ="meta-label">
-            <img src="images/gallery.png" alt="Photos"/>
-            <span>234 photos</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="album-card">
-        <img src="images/nyc.jpg" />
-
-        <div class="album-info">
-          <h3>Event 4</h3>
-          <div class="meta">
-            <div class ="meta-label">
-            <img src="images/calendar.png" alt="Calendar"/>
-            <span>Dec 15, 2025</span>
-            </div>
-            <div class ="meta-label">
-            <img src="images/gallery.png" alt="Photos"/>
-            <span>234 photos</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-
+      <button class="btn-primary" id="new-event-btn" type="button">+ New Event</button>
     </div>
 
-    
+    <!-- Create event form (hidden until + New Event is clicked) -->
+    <div class="profile-card create-event-card" id="create-card" style="display:none">
+      <div class="form-group">
+        <label for="event-name">Event Name</label>
+        <input id="event-name" type="text" placeholder="Sarah's Wedding" />
+      </div>
+      <div class="form-group">
+        <label for="event-date">Date</label>
+        <input id="event-date" type="date" />
+      </div>
+      <p class="form-error" id="create-error"></p>
+      <div class="form-actions">
+        <button class="btn-primary" id="create-btn" type="button">Create Event</button>
+        <button class="btn-secondary" id="cancel-btn" type="button">Cancel</button>
+      </div>
+    </div>
+
+    <div class="album-grid" id="album-grid"></div>
+    <p class="muted empty-msg" id="empty-msg" style="display:none">
+      No events yet. Create your first one!
+    </p>
   </main>
+
+  <script src="app.js"></script>
+  <script>
+    requireAuth();
+
+    const grid = document.getElementById("album-grid");
+    const emptyMsg = document.getElementById("empty-msg");
+    const createCard = document.getElementById("create-card");
+    const createError = document.getElementById("create-error");
+    const nameInput = document.getElementById("event-name");
+    const dateInput = document.getElementById("event-date");
+
+    document.getElementById("logout-link").addEventListener("click", (e) => {
+      e.preventDefault();
+      logout();
+    });
+
+    document.getElementById("new-event-btn").addEventListener("click", () => {
+      createCard.style.display = createCard.style.display === "none" ? "" : "none";
+      if (createCard.style.display === "") nameInput.focus();
+    });
+
+    document.getElementById("cancel-btn").addEventListener("click", () => {
+      createCard.style.display = "none";
+      createError.textContent = "";
+    });
+
+    document.getElementById("create-btn").addEventListener("click", async () => {
+      createError.textContent = "";
+      const name = nameInput.value.trim();
+      if (!name) {
+        createError.textContent = "Event name is required.";
+        return;
+      }
+
+      const res = await authFetch("/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, event_date: dateInput.value || null })
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        createError.textContent = data.detail || "Failed to create event.";
+        return;
+      }
+
+      nameInput.value = "";
+      dateInput.value = "";
+      createCard.style.display = "none";
+      await loadEvents();
+    });
+
+    function formatDate(isoDate) {
+      if (!isoDate) return "No date";
+      const d = new Date(isoDate + "T00:00:00");
+      if (isNaN(d)) return isoDate;
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function renderEvents(events) {
+      grid.innerHTML = "";
+      emptyMsg.style.display = events.length ? "none" : "";
+
+      events.forEach(ev => {
+        const link = document.createElement("a");
+        link.href = `event.html?id=${ev.id}`;
+
+        const cover = ev.cover_url ? API_BASE + ev.cover_url : "images/nyc.jpg";
+
+        link.innerHTML = `
+          <div class="album-card">
+            <img src="${cover}" alt="${ev.name}" />
+            <div class="album-info">
+              <h3></h3>
+              <div class="meta">
+                <div class="meta-label">
+                  <img src="images/calendar.png" alt="Calendar"/>
+                  <span>${formatDate(ev.event_date)}</span>
+                </div>
+                <div class="meta-label">
+                  <img src="images/gallery.png" alt="Photos"/>
+                  <span>${ev.photo_count} photo${ev.photo_count === 1 ? "" : "s"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        link.querySelector("h3").textContent = ev.name; // avoid HTML injection via event name
+        grid.appendChild(link);
+      });
+    }
+
+    async function loadEvents() {
+      const res = await authFetch("/events");
+      const data = await res.json();
+      renderEvents(data.events || []);
+    }
+
+    loadEvents();
+  </script>
 
 </body>
 </html>
