@@ -13,7 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "eventsnap.db")
+DB_PATH = os.environ.get("EVENTSNAP_DB", os.path.join(BASE_DIR, "eventsnap.db"))
 
 engine = create_engine(
     f"sqlite:///{DB_PATH}",

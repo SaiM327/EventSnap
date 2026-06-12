@@ -36,7 +36,8 @@ app.add_middleware(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STORAGE_DIR = os.path.join(BASE_DIR, "storage")
+STORAGE_DIR = os.environ.get("EVENTSNAP_STORAGE", os.path.join(BASE_DIR, "storage"))
+os.makedirs(STORAGE_DIR, exist_ok=True)
 EVENTS_DIR = os.path.join(STORAGE_DIR, "events")
 PROFILES_DIR = os.path.join(STORAGE_DIR, "profiles")
 os.makedirs(EVENTS_DIR, exist_ok=True)

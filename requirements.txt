@@ -8,3 +8,7 @@ face-recognition-models==0.3.0
 dlib==20.0.0
 numpy==2.4.1
 pillow==12.1.0
+
+# Dev / test
+pytest==9.0.3
+httpx==0.28.1
