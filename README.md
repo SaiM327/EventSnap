@@ -1,84 +1,108 @@
 # EventSnap
 
-EventSnap is a full-stack event photo management application that allows users to upload, organize, and search event photos using facial recognition. Users can create event albums, upload photos, manage their profile, and instantly view all event photos that contain them.
+EventSnap is a full-stack event photo sharing platform with facial recognition. Users create event albums, upload photos, and instantly discover every photo they appear in — the backend matches faces in event photos against each user's profile photo and builds a personalized "Photos with Me" gallery.
 
 ## Features
 
-### Event Album Management
-- Browse event photo albums
-- View all photos within an event
-- Responsive gallery layout
-- Clean and intuitive user interface
+### Accounts & Authentication
+- Register / login with token-based authentication
+- Passwords hashed with PBKDF2 (200k iterations)
+- Per-user profiles with name, email, and profile photo
+- All API routes protected by bearer-token auth
 
-### Photo Uploads
-- Upload multiple photos simultaneously
-- Automatic image validation
-- Secure file storage with unique filenames
-- Real-time gallery updates after upload
+### Event Albums
+- Create unlimited event albums with names and dates
+- Albums dashboard with cover photos and live photo counts
+- Owner-only event deletion
+- Shared albums: every user can browse events and find themselves in the photos
 
-### Photo Management
-- Delete uploaded photos
-- Dynamic gallery refresh
-- Protected file handling
-
-### User Profiles
-- Upload and update profile pictures
-- Save user information locally
-- Persistent profile settings
-- Profile image management
+### Photo Uploads & Management
+- Upload multiple photos at once
+- File type and size validation, unique server-side filenames
+- Delete individual photos
+- Face encoding runs as a background task, so uploads return instantly
+- Interrupted encoding jobs automatically resume on server restart
 
 ### Facial Recognition
-- Generate face embeddings for uploaded photos
-- Create embeddings for profile pictures
-- Automatically identify photos containing the user
-- Personalized "Photos With Me" gallery
+- 128-dimension face embeddings generated for every detected face (dlib / face_recognition)
+- Profile photo embedding stored per user
+- "Photos with Me" tab compares embeddings with vectorized NumPy distance matching
+- Reports how many photos are still being scanned
+
+### Bulk Download
+- Download an entire album as a zip
+- Or download only the photos you appear in
 
 ## Tech Stack
 
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
+| Layer | Technology |
+|---|---|
+| Backend | Python, FastAPI, SQLAlchemy |
+| Database | SQLite (users, sessions, events, photos, face embeddings) |
+| Computer Vision | dlib via face_recognition, NumPy |
+| Frontend | HTML5, CSS3, vanilla JavaScript |
+| Testing | pytest (22 tests, isolated test DB, mocked encodings) |
 
-### Backend
-- FastAPI
-- Python
+## Project Structure
 
-### Computer Vision
-- face_recognition
-- NumPy
+```
+app.py              FastAPI application: auth, events, photos, matching, downloads
+db.py               SQLAlchemy models: User, AuthToken, Event, Photo
+security.py         Password hashing, token creation, auth dependency
+cli.py              Admin CLI: stats, user management, cleanup, re-encoding
+tests/test_api.py   End-to-end API test suite
+index.html          Albums dashboard
+event.html          Album page (upload, tabs, downloads)
+profile.html        Profile settings
+login.html          Sign in / create account
+app.js              Shared frontend auth helpers
+styles.css          Styling
+```
 
-### Storage
-- Local file system storage
-- JSON-based face embedding storage
+## Getting Started
+
+```bash
+# 1. Create a virtual environment and install dependencies
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+
+# 2. Start the API server
+.venv/bin/uvicorn app:app --port 8001
+
+# 3. Open login.html in a browser (or serve the folder with any static server)
+```
+
+The SQLite database (`eventsnap.db`) and storage folders are created automatically on first run.
+
+### Run the Tests
+
+```bash
+.venv/bin/python -m pytest tests/
+```
+
+### Admin CLI
+
+```bash
+python cli.py stats              # user/event/photo counts
+python cli.py list-users
+python cli.py list-events
+python cli.py reset-password EMAIL
+python cli.py encode-pending     # encode photos that were never processed
+python cli.py cleanup            # remove orphaned files and DB rows
+```
 
 ## How It Works
 
-### Upload Event Photos
-1. User uploads photos to an event album.
-2. Images are stored on the server.
-3. Face embeddings are generated for every detected face.
-4. Embeddings are saved as JSON files alongside each image.
-
-### Create User Profile
-1. User uploads a profile picture.
-2. A facial embedding is extracted from the image.
-3. The embedding is stored for future matching.
-
-### Find Photos With Me
-1. User selects the **Photos With Me** tab.
-2. The backend compares the user's profile embedding against all event photo embeddings.
-3. Matching photos are returned and displayed instantly.
-
+1. **Sign up** and upload a profile photo — a 128-d face embedding is extracted and stored on your account.
+2. **Create an event** and upload photos. Each photo is saved immediately; face detection runs in the background (serialized behind a lock, since dlib is not thread-safe).
+3. **Open "Photos with Me"** — the backend compares your profile embedding against every face found in the album using NumPy vectorized Euclidean distance (tolerance 0.6) and returns only your photos.
+4. **Download** the full album or just your matches as a zip.
 
 ## Future Improvements
 
-- User authentication and account management
 - Cloud storage integration (AWS S3)
-- Support for multiple events and organizers
-- FAISS-powered face embedding search for scalability
-- Event sharing and collaboration
-- Mobile application support
-- Real-time photo synchronization
+- FAISS-powered embedding search for large albums
+- Thumbnails for faster gallery loading
+- Share links so guests can join an event without an account
 - Automatic face clustering and tagging
-
+- Mobile application support
